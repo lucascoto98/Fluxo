@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluxo OS | Sistema Completo</title>
+    <title>Fluxo OS | Conexão Total</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,7 +11,6 @@
     <style>
         :root {
             --accent: #00d2ff;
-            --accent-2: #3a7bd5;
             --bg: #050a18;
             --card: rgba(255, 255, 255, 0.08);
             --border: rgba(255, 255, 255, 0.1);
@@ -45,9 +44,6 @@
 
         /* Conteúdo / Feed */
         .content-scroll { overflow-y: auto; padding-right: 10px; scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
-        .content-scroll::-webkit-scrollbar { width: 6px; }
-        .content-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
-
         .post { padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); animation: slideIn 0.4s ease-out; }
         .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
         .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
@@ -55,13 +51,13 @@
 
         /* Video Call Overlay */
         #callOverlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-            z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: center;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.98);
+            z-index: 9000; display: none; flex-direction: column; align-items: center; justify-content: center;
         }
-        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 90%; height: 70%; }
+        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 90%; height: 75%; }
         video { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; border: 2px solid var(--accent); background: #111; }
         .call-controls { margin-top: 30px; display: flex; gap: 20px; }
-        .hangup-btn { background: #ff3b30; color: white; border: none; padding: 15px 40px; border-radius: 50px; cursor: pointer; font-weight: bold; }
+        .hangup-btn { background: #ff3b30; color: white; border: none; padding: 15px 40px; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 16px; }
 
         /* Inputs e Botões */
         input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: white; margin-bottom: 10px; }
@@ -74,15 +70,15 @@
 
     <div id="auth-screen" style="position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: flex; align-items: center; justify-content: center;">
         <div class="glass" style="width: 380px; padding: 40px; text-align: center;">
-            <i class="fa-solid fa-bolt" style="font-size: 40px; color: var(--accent); margin-bottom: 20px;"></i>
-            <h2>Bem-vindo ao Fluxo</h2>
+            <i class="fa-solid fa-signal" style="font-size: 40px; color: var(--accent); margin-bottom: 20px;"></i>
+            <h2>Fluxo <span style="color:var(--accent)">OS</span></h2>
             <div style="margin-bottom: 20px; cursor: pointer;" onclick="document.getElementById('avatarInput').click()">
                 <img id="avatarPreview" src="https://ui-avatars.com/api/?name=User&background=00d2ff&color=000" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover;">
                 <p style="font-size: 12px; color: var(--accent);">Mudar Foto</p>
             </div>
             <input type="file" id="avatarInput" class="hidden" accept="image/*">
-            <input type="text" id="username" placeholder="Teu Nome ou @User">
-            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="bootApp()">INICIALIZAR</button>
+            <input type="text" id="username" placeholder="Teu Nome">
+            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="bootApp()">LIGAR SISTEMA</button>
         </div>
     </div>
 
@@ -97,11 +93,14 @@
 
         <main class="content-scroll">
             <section id="tab-feed">
-                <h1 style="margin: 0 0 20px 0;">Fluxo <span style="color:var(--accent)">Feed</span></h1>
+                <h1 style="margin: 0 0 20px 0;">Feed</h1>
                 <div class="glass" style="padding: 20px; margin-bottom: 30px;">
-                    <textarea id="postTxt" placeholder="No que estás a pensar?"></textarea>
+                    <textarea id="postTxt" placeholder="O que há de novo?"></textarea>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label style="cursor: pointer; color: var(--accent);"><i class="fa-solid fa-camera"></i> Foto <input type="file" id="postImgInput" class="hidden" accept="image/*"></label>
+                        <label style="cursor: pointer; color: var(--accent); font-weight: bold;">
+                            <i class="fa-solid fa-camera"></i> Foto 
+                            <input type="file" id="postImgInput" class="hidden" accept="image/*">
+                        </label>
                         <button class="btn" onclick="publishPost()">Publicar</button>
                     </div>
                 </div>
@@ -109,12 +108,12 @@
             </section>
 
             <section id="tab-call" class="hidden">
-                <h1 style="margin: 0 0 20px 0;">Video <span style="color:var(--accent)">Chamada</span></h1>
+                <h1 style="margin: 0 0 20px 0;">Chamada</h1>
                 <div class="glass" style="padding: 40px; text-align: center;">
-                    <p>O teu ID de conexão:</p>
-                    <h2 id="myPeerId" style="color: var(--accent); letter-spacing: 2px;">GERANDO...</h2>
-                    <input type="text" id="destId" placeholder="ID do amigo (FX-XXXX)" style="text-align: center; text-transform: uppercase;">
-                    <button class="btn" style="width: 100%; padding: 15px;" onclick="startCall()"><i class="fa-solid fa-phone"></i> LIGAR AGORA</button>
+                    <p>O teu ID (Passa ao teu amigo):</p>
+                    <h2 id="myPeerId" style="color: var(--accent); letter-spacing: 2px;">A ligar...</h2>
+                    <input type="text" id="destId" placeholder="ID do Amigo (FX0000)" style="text-align: center; text-transform: uppercase;">
+                    <button class="btn" style="width: 100%; padding: 15px;" onclick="startCall()">INICIAR VÍDEO</button>
                 </div>
             </section>
         </main>
@@ -123,7 +122,7 @@
             <div class="glass" style="padding: 25px; text-align: center;">
                 <img id="myAvatarSide" class="avatar-circle" style="width: 80px; height: 80px; margin-bottom: 10px;">
                 <h3 id="myNameSide" style="margin: 0;"></h3>
-                <small style="color: var(--accent);">Status: Online</small>
+                <small style="color: var(--accent);">Online e Seguro</small>
             </div>
         </aside>
     </div>
@@ -134,7 +133,7 @@
             <video id="remoteVideo" autoplay playsinline></video>
         </div>
         <div class="call-controls">
-            <button class="hangup-btn" onclick="location.reload()">DESLIGAR</button>
+            <button class="hangup-btn" onclick="location.reload()">DESLIGAR CHAMADA</button>
         </div>
     </div>
 
@@ -142,9 +141,8 @@
         let peer;
         let localStream;
         let userData = { nome: "", foto: "", id: "" };
-        let posts = JSON.parse(localStorage.getItem('fluxo_final_v1')) || [];
+        let posts = JSON.parse(localStorage.getItem('fluxo_final_v2')) || [];
 
-        // Preview de Avatar
         document.getElementById('avatarInput').onchange = e => {
             const reader = new FileReader();
             reader.onload = () => document.getElementById('avatarPreview').src = reader.result;
@@ -153,35 +151,50 @@
 
         function bootApp() {
             const nome = document.getElementById('username').value.trim();
-            if(!nome) return alert("Insere um nome!");
+            if(!nome) return alert("Insere o teu nome!");
 
             userData.nome = nome;
             userData.foto = document.getElementById('avatarPreview').src;
-            userData.id = "FX-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+            userData.id = "FX" + Math.floor(1000 + Math.random() * 9000);
 
-            // PeerJS Setup
             peer = new Peer(userData.id);
+            
             peer.on('open', id => { document.getElementById('myPeerId').innerText = id; });
             
-            peer.on('call', call => {
-                if(confirm("Chamada recebida! Aceitar?")) {
-                    navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(stream => {
-                        localStream = stream;
-                        document.getElementById('callOverlay').style.display = 'flex';
-                        document.getElementById('localVideo').srcObject = stream;
-                        call.answer(stream);
-                        call.on('stream', rs => { document.getElementById('remoteVideo').srcObject = rs; });
+            peer.on('call', async (call) => {
+                if(confirm("Chamada de " + call.peer + ". Aceitar?")) {
+                    localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+                    document.getElementById('callOverlay').style.display = 'flex';
+                    document.getElementById('localVideo').srcObject = localStream;
+                    
+                    call.answer(localStream);
+                    call.on('stream', rs => {
+                        document.getElementById('remoteVideo').srcObject = rs;
                     });
                 }
             });
 
-            // UI Switch
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
             document.getElementById('myNameSide').innerText = nome;
             document.getElementById('myAvatarSide').src = userData.foto;
-            
             renderPosts();
+        }
+
+        async function startCall() {
+            const dest = document.getElementById('destId').value.trim().toUpperCase();
+            if(!dest) return alert("ID do amigo necessário!");
+            
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+                document.getElementById('callOverlay').style.display = 'flex';
+                document.getElementById('localVideo').srcObject = localStream;
+
+                const call = peer.call(dest, localStream);
+                call.on('stream', rs => {
+                    document.getElementById('remoteVideo').srcObject = rs;
+                });
+            } catch(e) { alert("Erro de câmara!"); }
         }
 
         function showTab(tab, el) {
@@ -198,7 +211,7 @@
 
             const save = (imgData = null) => {
                 posts.unshift({ u: userData.nome, f: userData.foto, t: txt, i: imgData, h: new Date().toLocaleTimeString() });
-                localStorage.setItem('fluxo_final_v1', JSON.stringify(posts));
+                localStorage.setItem('fluxo_final_v2', JSON.stringify(posts));
                 document.getElementById('postTxt').value = "";
                 document.getElementById('postImgInput').value = "";
                 renderPosts();
@@ -223,18 +236,6 @@
                     ${p.i ? `<img src="${p.i}" class="post-img">` : ''}
                 </div>
             `).join('');
-        }
-
-        async function startCall() {
-            const dest = document.getElementById('destId').value.trim().toUpperCase();
-            if(!dest) return alert("ID do amigo necessário!");
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-                document.getElementById('callOverlay').style.display = 'flex';
-                document.getElementById('localVideo').srcObject = localStream;
-                const call = peer.call(dest, localStream);
-                call.on('stream', rs => { document.getElementById('remoteVideo').srcObject = rs; });
-            } catch(e) { alert("Câmara não disponível!"); }
         }
     </script>
 </body>
