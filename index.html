@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluxo | Social Network</title>
+    <title>Fluxo | Social Sync</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -44,11 +44,14 @@
         .post { padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); animation: slideIn 0.3s ease-out; }
         .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
         .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
-        .post-img { width: 100%; border-radius: 15px; margin-top: 15px; max-height: 450px; object-fit: cover; }
+        .post-img { width: 100%; border-radius: 15px; margin-top: 15px; max-height: 400px; object-fit: cover; }
 
         input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: white; margin-bottom: 10px; resize: none; }
         .btn { background: var(--accent); color: #000; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 210, 255, 0.3); }
+
+        /* Inbox Style */
+        .msg-bubble { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 15px; margin-bottom: 10px; border-left: 3px solid var(--accent); }
 
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -57,106 +60,131 @@
 
     <div id="auth-screen" style="position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: flex; align-items: center; justify-content: center;">
         <div class="glass" style="width: 380px; padding: 40px; text-align: center;">
-            <h1 style="color: var(--accent); letter-spacing: 3px;">FLUXO</h1>
-            <div style="margin: 25px 0; cursor: pointer;" onclick="document.getElementById('avatarInput').click()">
-                <img id="avatarPreview" src="https://ui-avatars.com/api/?name=User&background=00d2ff&color=000" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover;">
-                <p style="font-size: 13px; color: var(--accent); margin-top: 10px;">Escolher Foto</p>
+            <h1 style="color: var(--accent); letter-spacing: 3px; margin-bottom: 5px;">FLUXO</h1>
+            <p style="font-size: 12px; opacity: 0.6; margin-bottom: 30px;">Identidade Digital via E-mail</p>
+            
+            <input type="email" id="userEmail" placeholder="Teu e-mail profissional">
+            <div id="firstTimeFields" class="hidden">
+                <div style="margin: 20px 0; cursor: pointer;" onclick="document.getElementById('avatarInput').click()">
+                    <img id="avatarPreview" src="https://ui-avatars.com/api/?background=00d2ff&color=000" style="width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover;">
+                </div>
+                <input type="file" id="avatarInput" class="hidden" accept="image/*">
+                <input type="text" id="username" placeholder="Nome de utilizador">
             </div>
-            <input type="file" id="avatarInput" class="hidden" accept="image/*">
-            <input type="text" id="username" placeholder="Teu apelido...">
-            <button class="btn" style="width: 100%; height: 50px;" onclick="bootApp()">ENTRAR NO FLUXO</button>
+
+            <button class="btn" style="width: 100%; height: 50px; margin-top: 10px;" onclick="handleAuth()">ENTRAR NO SISTEMA</button>
         </div>
     </div>
 
     <div id="app" class="main-app hidden">
         <nav class="sidebar glass">
-            <div class="nav-item active"><i class="fa-solid fa-house"></i></div>
-            <div class="nav-item" onclick="location.reload()"><i class="fa-solid fa-power-off"></i></div>
+            <div class="nav-item active" onclick="switchTab('feed', this)"><i class="fa-solid fa-house"></i></div>
+            <div class="nav-item" onclick="switchTab('inbox', this)"><i class="fa-solid fa-envelope"></i></div>
+            <div class="nav-item" onclick="logout()"><i class="fa-solid fa-power-off"></i></div>
         </nav>
 
         <main class="content-scroll">
-            <h2 style="margin: 0 0 20px 0;">O teu <span style="color:var(--accent)">Feed</span></h2>
-            
-            <div class="glass" style="padding: 20px; margin-bottom: 30px;">
-                <textarea id="postTxt" rows="3" placeholder="O que estás a pensar hoje?"></textarea>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <label style="cursor: pointer; color: var(--accent); font-weight: bold; font-size: 14px;">
-                        <i class="fa-solid fa-image"></i> Adicionar Foto 
-                        <input type="file" id="postImgInput" class="hidden" accept="image/*">
-                    </label>
-                    <button class="btn" onclick="publishPost()">Publicar</button>
+            <section id="tab-feed">
+                <h2 style="margin: 0 0 20px 0;">Feed <span style="color:var(--accent)">Global</span></h2>
+                <div class="glass" style="padding: 20px; margin-bottom: 30px;">
+                    <textarea id="postTxt" rows="2" placeholder="Partilha algo com a rede..."></textarea>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label style="cursor: pointer; color: var(--accent); font-size: 14px;"><i class="fa-solid fa-image"></i> Foto<input type="file" id="postImgInput" class="hidden" accept="image/*"></label>
+                        <button class="btn" onclick="publishPost()">Publicar</button>
+                    </div>
                 </div>
-            </div>
+                <div id="feedArea"></div>
+            </section>
 
-            <div id="feedArea"></div>
+            <section id="tab-inbox" class="hidden">
+                <h2 style="margin: 0 0 20px 0;">Mensagens <span style="color:var(--accent)">Privadas</span></h2>
+                <div class="glass" style="padding: 20px; margin-bottom: 20px;">
+                    <input type="email" id="msgDest" placeholder="E-mail do destinatário">
+                    <textarea id="msgContent" rows="2" placeholder="Escreve a tua mensagem secreta..."></textarea>
+                    <button class="btn" style="width: 100%" onclick="sendPrivateMsg()">ENVIAR MENSAGEM</button>
+                </div>
+                <div id="inboxArea"></div>
+            </section>
         </main>
 
         <aside>
             <div class="glass" style="padding: 25px; text-align: center;">
-                <img id="myAvatarSide" class="avatar-circle" style="width: 90px; height: 90px; margin-bottom: 15px;">
-                <h3 id="myNameSide" style="margin: 0;"></h3>
-                <p style="color: var(--accent); font-size: 12px; margin-top: 5px;">Membro Ativo</p>
-                <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
-                <div style="text-align: left; font-size: 13px; opacity: 0.7;">
-                    <p><i class="fa-solid fa-check" style="color: var(--accent)"></i> Sessão Segura</p>
-                    <p><i class="fa-solid fa-check" style="color: var(--accent)"></i> Armazenamento Local</p>
+                <img id="myAvatarSide" class="avatar-circle" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                <h3 id="myNameSide" style="margin: 0; font-size: 18px;"></h3>
+                <small id="myEmailSide" style="color: var(--accent); opacity: 0.8;"></small>
+                <div style="margin-top: 25px; text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; font-size: 12px;">
+                    <b>Estatísticas:</b>
+                    <p style="margin: 8px 0 0 0;">Publicações: <span id="countPosts" style="color:var(--accent)">0</span></p>
                 </div>
             </div>
         </aside>
     </div>
 
     <script>
-        let userData = { nome: "", foto: "" };
-        let posts = JSON.parse(localStorage.getItem('fluxo_v3_data')) || [];
+        let currentUser = null;
+        let posts = JSON.parse(localStorage.getItem('fluxo_v4_posts')) || [];
+        let messages = JSON.parse(localStorage.getItem('fluxo_v4_msgs')) || [];
 
-        // Preview de Avatar
-        document.getElementById('avatarInput').onchange = e => {
-            const reader = new FileReader();
-            reader.onload = () => document.getElementById('avatarPreview').src = reader.result;
-            reader.readAsDataURL(e.target.files[0]);
-        };
+        // Lógica de Login/E-mail
+        function handleAuth() {
+            const email = document.getElementById('userEmail').value.trim().toLowerCase();
+            if(!email) return alert("Insere o teu e-mail!");
 
-        function bootApp() {
-            const nome = document.getElementById('username').value.trim();
-            if(!nome) return alert("Diz-nos o teu nome!");
+            const storedUser = JSON.parse(localStorage.getItem('user_' + email));
 
-            userData.nome = nome;
-            userData.foto = document.getElementById('avatarPreview').src;
-
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            
-            document.getElementById('myNameSide').innerText = nome;
-            document.getElementById('myAvatarSide').src = userData.foto;
-            
-            renderPosts();
+            if(storedUser) {
+                login(storedUser);
+            } else {
+                const firstTime = document.getElementById('firstTimeFields');
+                if(firstTime.classList.contains('hidden')) {
+                    firstTime.classList.remove('hidden');
+                    alert("E-mail não encontrado. Cria o teu perfil!");
+                } else {
+                    const nome = document.getElementById('username').value.trim();
+                    if(!nome) return alert("Escolhe um nome!");
+                    
+                    const newUser = {
+                        email: email,
+                        nome: nome,
+                        foto: document.getElementById('avatarPreview').src
+                    };
+                    localStorage.setItem('user_' + email, JSON.stringify(newUser));
+                    login(newUser);
+                }
+            }
         }
 
+        function login(user) {
+            currentUser = user;
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            document.getElementById('myNameSide').innerText = user.nome;
+            document.getElementById('myEmailSide').innerText = user.email;
+            document.getElementById('myAvatarSide').src = user.foto;
+            renderPosts();
+            renderInbox();
+        }
+
+        function logout() { location.reload(); }
+
+        // Mudar Abas
+        function switchTab(tab, el) {
+            document.getElementById('tab-feed').classList.toggle('hidden', tab !== 'feed');
+            document.getElementById('tab-inbox').classList.toggle('hidden', tab !== 'inbox');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        // Sistema de Feed
         function publishPost() {
-            const txt = document.getElementById('postTxt').value.trim();
+            const txt = document.getElementById('postTxt').value;
             const imgFile = document.getElementById('postImgInput').files[0];
-            
             if(!txt && !imgFile) return;
 
             const save = (imgData = null) => {
-                const newPost = {
-                    u: userData.nome,
-                    f: userData.foto,
-                    t: txt,
-                    i: imgData,
-                    h: new Date().toLocaleString('pt-PT', { hour: '2-digit', minute: '2-digit' })
-                };
-
-                posts.unshift(newPost);
-                
-                // Limitar a 20 posts para não sobrecarregar o browser
-                if(posts.length > 20) posts.pop();
-
-                localStorage.setItem('fluxo_v3_data', JSON.stringify(posts));
-                
-                // Reset campos
+                posts.unshift({ u: currentUser.nome, f: currentUser.foto, t: txt, i: imgData, h: new Date().toLocaleTimeString() });
+                localStorage.setItem('fluxo_v4_posts', JSON.stringify(posts));
                 document.getElementById('postTxt').value = "";
-                document.getElementById('postImgInput').value = "";
                 renderPosts();
             };
 
@@ -164,32 +192,53 @@
                 const reader = new FileReader();
                 reader.onload = () => save(reader.result);
                 reader.readAsDataURL(imgFile);
-            } else {
-                save();
-            }
+            } else { save(); }
         }
 
         function renderPosts() {
             const area = document.getElementById('feedArea');
-            if(posts.length === 0) {
-                area.innerHTML = '<p style="text-align:center; opacity:0.5; margin-top:50px;">Ainda não há nada por aqui. Sê o primeiro a publicar!</p>';
-                return;
-            }
-
+            document.getElementById('countPosts').innerText = posts.filter(p => p.u === currentUser.nome).length;
             area.innerHTML = posts.map(p => `
                 <div class="glass post">
-                    <div class="post-header">
-                        <img src="${p.f}" class="avatar-circle">
-                        <div>
-                            <div style="font-weight:bold">${p.u}</div>
-                            <div style="font-size:11px; opacity:0.5">${p.h}</div>
-                        </div>
-                    </div>
-                    ${p.t ? `<p style="margin:15px 0 0 0; line-height:1.5;">${p.t}</p>` : ''}
-                    ${p.i ? `<img src="${p.i}" class="post-img">` : ''}
+                    <div class="post-header"><img src="${p.f}" class="avatar-circle"><div><b>${p.u}</b><br><small style="opacity:0.4">${p.h}</small></div></div>
+                    <p>${p.t}</p>${p.i ? `<img src="${p.i}" class="post-img">` : ''}
                 </div>
             `).join('');
         }
+
+        // Sistema de Mensagens Privadas
+        function sendPrivateMsg() {
+            const dest = document.getElementById('msgDest').value.trim().toLowerCase();
+            const content = document.getElementById('msgContent').value.trim();
+            if(!dest || !content) return alert("Preenche os campos!");
+
+            messages.unshift({ from: currentUser.email, to: dest, text: content, date: new Date().toLocaleTimeString() });
+            localStorage.setItem('fluxo_v4_msgs', JSON.stringify(messages));
+            document.getElementById('msgContent').value = "";
+            alert("Mensagem enviada para " + dest);
+            renderInbox();
+        }
+
+        function renderInbox() {
+            const area = document.getElementById('inboxArea');
+            // Filtrar apenas mensagens enviadas PARA MIM ou POR MIM
+            const myMsgs = messages.filter(m => m.to === currentUser.email || m.from === currentUser.email);
+            
+            area.innerHTML = myMsgs.map(m => `
+                <div class="msg-bubble">
+                    <small style="color:var(--accent)">${m.from === currentUser.email ? 'TU PARA ' + m.to : 'DE: ' + m.from}</small>
+                    <p style="margin:5px 0;">${m.text}</p>
+                    <small style="opacity:0.4; font-size:10px;">${m.date}</small>
+                </div>
+            `).join('');
+        }
+
+        // Preview foto
+        document.getElementById('avatarInput').onchange = e => {
+            const reader = new FileReader();
+            reader.onload = () => document.getElementById('avatarPreview').src = reader.result;
+            reader.readAsDataURL(e.target.files[0]);
+        };
     </script>
 </body>
 </html>
