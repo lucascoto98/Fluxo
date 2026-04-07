@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluxo OS | Conexão Total</title>
+    <title>Fluxo | Social Network</title>
     
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -28,13 +27,11 @@
         .glass { background: var(--card); backdrop-filter: blur(15px); border: 1px solid var(--border); border-radius: 20px; }
         .hidden { display: none !important; }
 
-        /* Estrutura Principal */
         .main-app {
             display: grid; grid-template-columns: 80px 1fr 320px;
             height: 100vh; padding: 20px; gap: 20px;
         }
 
-        /* Sidebar Navegação */
         .sidebar { display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 25px; }
         .nav-item {
             width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; 
@@ -42,107 +39,77 @@
         }
         .nav-item.active { opacity: 1; background: var(--accent); color: #000; box-shadow: 0 0 15px var(--accent); }
 
-        /* Conteúdo / Feed */
         .content-scroll { overflow-y: auto; padding-right: 10px; scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
-        .post { padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); animation: slideIn 0.4s ease-out; }
+        
+        .post { padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); animation: slideIn 0.3s ease-out; }
         .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
         .avatar-circle { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
-        .post-img { width: 100%; border-radius: 15px; margin-top: 15px; max-height: 400px; object-fit: cover; }
+        .post-img { width: 100%; border-radius: 15px; margin-top: 15px; max-height: 450px; object-fit: cover; }
 
-        /* Video Call Overlay */
-        #callOverlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.98);
-            z-index: 9000; display: none; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 90%; height: 75%; }
-        video { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; border: 2px solid var(--accent); background: #111; }
-        .call-controls { margin-top: 30px; display: flex; gap: 20px; }
-        .hangup-btn { background: #ff3b30; color: white; border: none; padding: 15px 40px; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: white; margin-bottom: 10px; resize: none; }
+        .btn { background: var(--accent); color: #000; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 210, 255, 0.3); }
 
-        /* Inputs e Botões */
-        input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: white; margin-bottom: 10px; }
-        .btn { background: var(--accent); color: #000; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <div id="auth-screen" style="position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: flex; align-items: center; justify-content: center;">
         <div class="glass" style="width: 380px; padding: 40px; text-align: center;">
-            <i class="fa-solid fa-signal" style="font-size: 40px; color: var(--accent); margin-bottom: 20px;"></i>
-            <h2>Fluxo <span style="color:var(--accent)">OS</span></h2>
-            <div style="margin-bottom: 20px; cursor: pointer;" onclick="document.getElementById('avatarInput').click()">
-                <img id="avatarPreview" src="https://ui-avatars.com/api/?name=User&background=00d2ff&color=000" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover;">
-                <p style="font-size: 12px; color: var(--accent);">Mudar Foto</p>
+            <h1 style="color: var(--accent); letter-spacing: 3px;">FLUXO</h1>
+            <div style="margin: 25px 0; cursor: pointer;" onclick="document.getElementById('avatarInput').click()">
+                <img id="avatarPreview" src="https://ui-avatars.com/api/?name=User&background=00d2ff&color=000" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover;">
+                <p style="font-size: 13px; color: var(--accent); margin-top: 10px;">Escolher Foto</p>
             </div>
             <input type="file" id="avatarInput" class="hidden" accept="image/*">
-            <input type="text" id="username" placeholder="Teu Nome">
-            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="bootApp()">LIGAR SISTEMA</button>
+            <input type="text" id="username" placeholder="Teu apelido...">
+            <button class="btn" style="width: 100%; height: 50px;" onclick="bootApp()">ENTRAR NO FLUXO</button>
         </div>
     </div>
 
     <div id="app" class="main-app hidden">
         <nav class="sidebar glass">
-            <div class="nav-item active" onclick="showTab('feed', this)"><i class="fa-solid fa-house"></i></div>
-            <div class="nav-item" onclick="showTab('call', this)"><i class="fa-solid fa-video"></i></div>
-            <div style="margin-top: auto;">
-                <div class="nav-item" onclick="location.reload()"><i class="fa-solid fa-power-off"></i></div>
-            </div>
+            <div class="nav-item active"><i class="fa-solid fa-house"></i></div>
+            <div class="nav-item" onclick="location.reload()"><i class="fa-solid fa-power-off"></i></div>
         </nav>
 
         <main class="content-scroll">
-            <section id="tab-feed">
-                <h1 style="margin: 0 0 20px 0;">Feed</h1>
-                <div class="glass" style="padding: 20px; margin-bottom: 30px;">
-                    <textarea id="postTxt" placeholder="O que há de novo?"></textarea>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label style="cursor: pointer; color: var(--accent); font-weight: bold;">
-                            <i class="fa-solid fa-camera"></i> Foto 
-                            <input type="file" id="postImgInput" class="hidden" accept="image/*">
-                        </label>
-                        <button class="btn" onclick="publishPost()">Publicar</button>
-                    </div>
+            <h2 style="margin: 0 0 20px 0;">O teu <span style="color:var(--accent)">Feed</span></h2>
+            
+            <div class="glass" style="padding: 20px; margin-bottom: 30px;">
+                <textarea id="postTxt" rows="3" placeholder="O que estás a pensar hoje?"></textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="cursor: pointer; color: var(--accent); font-weight: bold; font-size: 14px;">
+                        <i class="fa-solid fa-image"></i> Adicionar Foto 
+                        <input type="file" id="postImgInput" class="hidden" accept="image/*">
+                    </label>
+                    <button class="btn" onclick="publishPost()">Publicar</button>
                 </div>
-                <div id="feedArea"></div>
-            </section>
+            </div>
 
-            <section id="tab-call" class="hidden">
-                <h1 style="margin: 0 0 20px 0;">Chamada</h1>
-                <div class="glass" style="padding: 40px; text-align: center;">
-                    <p>O teu ID (Passa ao teu amigo):</p>
-                    <h2 id="myPeerId" style="color: var(--accent); letter-spacing: 2px;">A ligar...</h2>
-                    <input type="text" id="destId" placeholder="ID do Amigo (FX0000)" style="text-align: center; text-transform: uppercase;">
-                    <button class="btn" style="width: 100%; padding: 15px;" onclick="startCall()">INICIAR VÍDEO</button>
-                </div>
-            </section>
+            <div id="feedArea"></div>
         </main>
 
         <aside>
             <div class="glass" style="padding: 25px; text-align: center;">
-                <img id="myAvatarSide" class="avatar-circle" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                <img id="myAvatarSide" class="avatar-circle" style="width: 90px; height: 90px; margin-bottom: 15px;">
                 <h3 id="myNameSide" style="margin: 0;"></h3>
-                <small style="color: var(--accent);">Online e Seguro</small>
+                <p style="color: var(--accent); font-size: 12px; margin-top: 5px;">Membro Ativo</p>
+                <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+                <div style="text-align: left; font-size: 13px; opacity: 0.7;">
+                    <p><i class="fa-solid fa-check" style="color: var(--accent)"></i> Sessão Segura</p>
+                    <p><i class="fa-solid fa-check" style="color: var(--accent)"></i> Armazenamento Local</p>
+                </div>
             </div>
         </aside>
     </div>
 
-    <div id="callOverlay">
-        <div class="video-grid">
-            <video id="localVideo" autoplay muted playsinline></video>
-            <video id="remoteVideo" autoplay playsinline></video>
-        </div>
-        <div class="call-controls">
-            <button class="hangup-btn" onclick="location.reload()">DESLIGAR CHAMADA</button>
-        </div>
-    </div>
-
     <script>
-        let peer;
-        let localStream;
-        let userData = { nome: "", foto: "", id: "" };
-        let posts = JSON.parse(localStorage.getItem('fluxo_final_v2')) || [];
+        let userData = { nome: "", foto: "" };
+        let posts = JSON.parse(localStorage.getItem('fluxo_v3_data')) || [];
 
+        // Preview de Avatar
         document.getElementById('avatarInput').onchange = e => {
             const reader = new FileReader();
             reader.onload = () => document.getElementById('avatarPreview').src = reader.result;
@@ -151,67 +118,43 @@
 
         function bootApp() {
             const nome = document.getElementById('username').value.trim();
-            if(!nome) return alert("Insere o teu nome!");
+            if(!nome) return alert("Diz-nos o teu nome!");
 
             userData.nome = nome;
             userData.foto = document.getElementById('avatarPreview').src;
-            userData.id = "FX" + Math.floor(1000 + Math.random() * 9000);
-
-            peer = new Peer(userData.id);
-            
-            peer.on('open', id => { document.getElementById('myPeerId').innerText = id; });
-            
-            peer.on('call', async (call) => {
-                if(confirm("Chamada de " + call.peer + ". Aceitar?")) {
-                    localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-                    document.getElementById('callOverlay').style.display = 'flex';
-                    document.getElementById('localVideo').srcObject = localStream;
-                    
-                    call.answer(localStream);
-                    call.on('stream', rs => {
-                        document.getElementById('remoteVideo').srcObject = rs;
-                    });
-                }
-            });
 
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
+            
             document.getElementById('myNameSide').innerText = nome;
             document.getElementById('myAvatarSide').src = userData.foto;
+            
             renderPosts();
         }
 
-        async function startCall() {
-            const dest = document.getElementById('destId').value.trim().toUpperCase();
-            if(!dest) return alert("ID do amigo necessário!");
-            
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-                document.getElementById('callOverlay').style.display = 'flex';
-                document.getElementById('localVideo').srcObject = localStream;
-
-                const call = peer.call(dest, localStream);
-                call.on('stream', rs => {
-                    document.getElementById('remoteVideo').srcObject = rs;
-                });
-            } catch(e) { alert("Erro de câmara!"); }
-        }
-
-        function showTab(tab, el) {
-            document.getElementById('tab-feed').classList.toggle('hidden', tab !== 'feed');
-            document.getElementById('tab-call').classList.toggle('hidden', tab !== 'call');
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-        }
-
         function publishPost() {
-            const txt = document.getElementById('postTxt').value;
+            const txt = document.getElementById('postTxt').value.trim();
             const imgFile = document.getElementById('postImgInput').files[0];
+            
             if(!txt && !imgFile) return;
 
             const save = (imgData = null) => {
-                posts.unshift({ u: userData.nome, f: userData.foto, t: txt, i: imgData, h: new Date().toLocaleTimeString() });
-                localStorage.setItem('fluxo_final_v2', JSON.stringify(posts));
+                const newPost = {
+                    u: userData.nome,
+                    f: userData.foto,
+                    t: txt,
+                    i: imgData,
+                    h: new Date().toLocaleString('pt-PT', { hour: '2-digit', minute: '2-digit' })
+                };
+
+                posts.unshift(newPost);
+                
+                // Limitar a 20 posts para não sobrecarregar o browser
+                if(posts.length > 20) posts.pop();
+
+                localStorage.setItem('fluxo_v3_data', JSON.stringify(posts));
+                
+                // Reset campos
                 document.getElementById('postTxt').value = "";
                 document.getElementById('postImgInput').value = "";
                 renderPosts();
@@ -221,18 +164,28 @@
                 const reader = new FileReader();
                 reader.onload = () => save(reader.result);
                 reader.readAsDataURL(imgFile);
-            } else { save(); }
+            } else {
+                save();
+            }
         }
 
         function renderPosts() {
             const area = document.getElementById('feedArea');
+            if(posts.length === 0) {
+                area.innerHTML = '<p style="text-align:center; opacity:0.5; margin-top:50px;">Ainda não há nada por aqui. Sê o primeiro a publicar!</p>';
+                return;
+            }
+
             area.innerHTML = posts.map(p => `
                 <div class="glass post">
                     <div class="post-header">
                         <img src="${p.f}" class="avatar-circle">
-                        <div><b>${p.u}</b><br><small style="opacity:0.4">${p.h}</small></div>
+                        <div>
+                            <div style="font-weight:bold">${p.u}</div>
+                            <div style="font-size:11px; opacity:0.5">${p.h}</div>
+                        </div>
                     </div>
-                    <p style="margin:0;">${p.t}</p>
+                    ${p.t ? `<p style="margin:15px 0 0 0; line-height:1.5;">${p.t}</p>` : ''}
                     ${p.i ? `<img src="${p.i}" class="post-img">` : ''}
                 </div>
             `).join('');
